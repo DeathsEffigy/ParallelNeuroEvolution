@@ -30,7 +30,7 @@ func main() {
     right := 0
     error := 0
     
-    for i := 0; i < 10; i++ {
+    for i := 0; i < 100; i++ {
         for _, stimulus := range stimuli {
             res := c.ExposeTo(stimulus.GreyScale)
             if len(res) > 0 {
