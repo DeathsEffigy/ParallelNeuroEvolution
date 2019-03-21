@@ -15,16 +15,45 @@ const path_stim = "/users/fabianschneider/desktop/programming/go/PNE/data"
 func main() {
     c := Circuit{}
     c.Neurogenesis(256, 4)
+    size := len(c.Cluster)
     
-    stimcon := map[int]string{"A": 0, "B": 1, "C": 2, "D": 3}
+    constim := map[string]int{"A": 0, "B": 1, "C": 2, "D": 3}
+    stimcon := map[int]string{0: "A", 1: "B", 2: "C", 3: "D"}
     stimuli := LoadStimuli()
     
-    for _, stimulus := range stimuli {
-        res := c.ExposeTo(stimulus.GreyScale)
-        fmt.Printf("NN thinks %s%s is %s with confidence=%f.\n", stimulus.Type, stimulus.Variant, res[0].outcome, res[0].confidence)
-        //c.CorrectFor(&res, )
+    count := 0
+    right := 0
+    error := 0
+    
+    for i := 0; i < 50; i++ {
+        for _, stimulus := range stimuli {
+            res := c.ExposeTo(stimulus.GreyScale)
+            if len(res) > 0 {
+                count += 1
+                if stimulus.Type == stimcon[res[0].outcome] {
+                    right += 1
+                } else {
+                    error += 1
+                }
+                //fmt.Printf("NN thinks %s%s is %s with confidence=%f.\n", stimulus.Type, stimulus.Variant, stimcon[res[0].outcome], res[0].confidence)
+                //fmt.Println(res)
+                c.CorrectFor(res, constim[stimulus.Type], stimulus.GreyScale)
+            } else {
+                fmt.Printf("NN has no answer for %s%s.\n", stimulus.Type, stimulus.Variant)
+            }
+        }
+        fmt.Printf("Success rate=%f over %d trials.\n", (float64(right) / float64(count)), count)
     }
-    c.ExposeTo(stimuli[0].GreyScale)
+    
+    /*for _, neuron := range c.Cluster {
+        for _, at := range neuron.Axon.Terminals {
+            fmt.Println(at)
+        }
+    }*/
+    
+    fmt.Printf("Size %d -> %d.", size, len(c.Cluster))
+    
+    //c.ExposeTo(stimuli[0].GreyScale)
 }
 
 type LoadStimulus struct {
@@ -107,5 +136,5 @@ func PixelToGS(pixel Pixel) int {
 }
 
 func GSToGR(gs int) float64 {
-    return float64(gs) / float64(255)
+    return float64(gs) / float64(255) * 0.2
 }

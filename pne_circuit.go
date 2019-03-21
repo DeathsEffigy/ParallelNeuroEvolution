@@ -28,8 +28,12 @@ func (circuit *Circuit) Neurogenesis(in int, out int) {
     // setup counts
     circuit.In = in
     circuit.Out = out
-    n := int(math.Ceil((float64(circuit.In) - float64(circuit.Out)) / float64(2))) + circuit.Out + circuit.In + circuit.Out
-    circuit.MaxConn = 5
+    n := int(math.Ceil((float64(circuit.In) - float64(circuit.Out)) / float64(2))) + circuit.Out
+    if n > circuit.In {
+        n = circuit.In
+    }
+    n = n + circuit.In + circuit.Out
+    circuit.MaxConn = 15
     
     for i := 0; i < n; i++ {
         // determine current type
@@ -58,7 +62,7 @@ func (circuit *Circuit) GrowNeuron(t int) {
 
 func (circuit *Circuit) ExposeTo(stimulus []float64) []RankedResult {
     defer func() {
-        circuit.Results = circuit.Results[:0]
+        circuit.Results = nil
     }()
     
     // make sure stimulus isn't bigger than inputs
@@ -83,12 +87,14 @@ func (circuit *Circuit) ExposeTo(stimulus []float64) []RankedResult {
         count[res.outcome] += 1
         mechano += 1
     }
+    //fmt.Println(count)
     
+    t := len(count)
     ranked := []RankedResult{}
-    for i := 0; i < len(count); i++ {
+    for i := 0; i < t; i++ {
         highest := -1
         highestI := -1
-        for n := 0; n < len(count); n++ {
+        for n := 0; n < t; n++ {
             if count[n] > highest {
                 highest = count[n]
                 highestI = n
@@ -98,5 +104,41 @@ func (circuit *Circuit) ExposeTo(stimulus []float64) []RankedResult {
         ranked = append(ranked, RankedResult{highestI, highest, float64(highest) / float64(mechano)})
     }
     
+    //fmt.Println(circuit.Results)
+        
     return ranked
+}
+
+func (c *Circuit) CorrectFor(r []RankedResult, v int, stimulus []float64) {
+    if r[0].outcome != v {
+        deep := int(math.Ceil((float64(c.In) - float64(c.Out)) / float64(2))) + c.Out
+        per := int(math.Ceil(float64(c.In) / float64(deep)))
+        
+        designatedOut := deep + (*c).In + (*c).Out - (*c).Out + r[0].outcome
+        realOut := deep + (*c).In + (*c).Out - (*c).Out + v
+        
+        deepPotentials := make([]float64, deep + c.In)
+        for in, stim := range stimulus {
+            this := int(math.Floor(float64(in) / float64(per))) + c.In
+            if c.Cluster[in].MembranePotential + stim > c.Cluster[in].ThresholdPotential {
+                deepPotentials[this] += 0.075
+            }
+        }
+        
+        for index, pot := range deepPotentials {
+            if c.Cluster[index].MembranePotential + pot > c.Cluster[index].ThresholdPotential {
+                at := (*c).Cluster[index].Axon.HasTerminalTo((*c).Cluster[designatedOut])
+                if at == nil {
+                    continue
+                }
+                
+                if (*at).SynapseIsExcitatory {
+                    (*c).GrowNeuron(neurontype.Deep)
+                    (*c).Cluster[len((*c).Cluster)-1].Axon.GrowSingleTerminal(realOut, true)
+                    //(*c).Cluster[len((*c).Cluster)-1].Axon.GrowSingleTerminal(designatedOut, false)
+                    (*c).Cluster[index].Axon.GrowSingleTerminal(len((*c).Cluster)-1, true)
+                }
+            }
+        }
+    }
 }

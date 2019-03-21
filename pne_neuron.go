@@ -1,7 +1,8 @@
 package main
 
 import (
-    "time"
+    //"time"
+    "math"
 )
 
 type NeuronType struct {
@@ -47,7 +48,7 @@ func (n *Neuron) GetVacantDendrite() *Dendrite{
 func (n *Neuron) Hyperpolarization() {
     n.MembranePotential = -0.90
     n.InRefractoryPeriod = true
-    time.Sleep(5 * time.Millisecond)
+    //time.Sleep(1 * time.Millisecond)
     n.AssumeRestingPotential()
 }
 
@@ -87,7 +88,8 @@ func (n *Neuron) Activate() {
     }()
     
     if n.Type == neurontype.Mechanical {
-        out := n.Index - n.circuit.In - (len(n.circuit.Cluster) - n.circuit.In - n.circuit.Out)
+        inilen := int(math.Ceil((float64(n.circuit.In) - float64(n.circuit.Out)) / float64(2))) + n.circuit.Out + n.circuit.In + n.circuit.Out
+        out := n.Index - n.circuit.In - (inilen - n.circuit.In - n.circuit.Out)
         n.circuit.Results = append(n.circuit.Results, Percept{out})
     } else {
         for i := 0; i < len(n.Axon.Terminals); i++ {
