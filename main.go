@@ -16,11 +16,13 @@ func main() {
     c := Circuit{}
     c.Neurogenesis(256, 4)
     
+    stimcon := map[int]string{"A": 0, "B": 1, "C": 2, "D": 3}
     stimuli := LoadStimuli()
     
     for _, stimulus := range stimuli {
         res := c.ExposeTo(stimulus.GreyScale)
-        fmt.Printf("NN thinks %s(%s) is %d.\n", stimulus.Type, stimulus.Variant, res[0].outcome)
+        fmt.Printf("NN thinks %s%s is %s with confidence=%f.\n", stimulus.Type, stimulus.Variant, res[0].outcome, res[0].confidence)
+        //c.CorrectFor(&res, )
     }
     c.ExposeTo(stimuli[0].GreyScale)
 }

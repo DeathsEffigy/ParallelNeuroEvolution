@@ -21,6 +21,7 @@ type Percept struct {
 type RankedResult struct {
     outcome int
     amplitude int
+    confidence float64
 }
 
 func (circuit *Circuit) Neurogenesis(in int, out int) {
@@ -76,9 +77,11 @@ func (circuit *Circuit) ExposeTo(stimulus []float64) []RankedResult {
         }
     }
     
+    mechano := 0
     count := make(map[int]int)
     for _, res := range circuit.Results {
         count[res.outcome] += 1
+        mechano += 1
     }
     
     ranked := []RankedResult{}
@@ -92,7 +95,7 @@ func (circuit *Circuit) ExposeTo(stimulus []float64) []RankedResult {
             }
         }
         count[highestI] = -1
-        ranked = append(ranked, RankedResult{highestI, highest})
+        ranked = append(ranked, RankedResult{highestI, highest, float64(highest) / float64(mechano)})
     }
     
     return ranked

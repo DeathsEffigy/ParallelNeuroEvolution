@@ -57,6 +57,14 @@ func (n *Neuron) AssumeRestingPotential() {
     n.InRefractoryPeriod = false
 }
 
+func (n *Neuron) Inhibit() {
+    if (*n).InRefractoryPeriod {
+        return 
+    }
+    
+    n.MembranePotential -= 0.075
+}
+
 func (n *Neuron) Excite(in ... float64) {
     if (*n).InRefractoryPeriod {
         return
@@ -84,7 +92,11 @@ func (n *Neuron) Activate() {
     } else {
         for i := 0; i < len(n.Axon.Terminals); i++ {
             if n.Axon.Terminals[i].To != nil {
-                go n.Axon.Terminals[i].To.PartOf.Excite()
+                if n.Axon.Terminals[i].SynapseIsExcitatory {
+                    go n.Axon.Terminals[i].To.PartOf.Excite()
+                } else {
+                    go n.Axon.Terminals[i].To.PartOf.Inhibit()
+                }
             }
         }
     }
