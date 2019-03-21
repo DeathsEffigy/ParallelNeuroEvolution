@@ -87,7 +87,6 @@ func (circuit *Circuit) ExposeTo(stimulus []float64) []RankedResult {
         count[res.outcome] += 1
         mechano += 1
     }
-    //fmt.Println(count)
     
     t := len(count)
     ranked := []RankedResult{}
@@ -104,8 +103,6 @@ func (circuit *Circuit) ExposeTo(stimulus []float64) []RankedResult {
         ranked = append(ranked, RankedResult{highestI, highest, float64(highest) / float64(mechano)})
     }
     
-    //fmt.Println(circuit.Results)
-        
     return ranked
 }
 
@@ -135,7 +132,6 @@ func (c *Circuit) CorrectFor(r []RankedResult, v int, stimulus []float64) {
                 if (*at).SynapseIsExcitatory {
                     (*c).GrowNeuron(neurontype.Deep)
                     (*c).Cluster[len((*c).Cluster)-1].Axon.GrowSingleTerminal(realOut, true)
-                    //(*c).Cluster[len((*c).Cluster)-1].Axon.GrowSingleTerminal(designatedOut, false)
                     (*c).Cluster[index].Axon.GrowSingleTerminal(len((*c).Cluster)-1, true)
                 }
             }

@@ -8,24 +8,29 @@ import (
     "regexp"
     "image"
     _"image/png"
+    "math"
 )
 
-const path_stim = "/users/fabianschneider/desktop/programming/go/PNE/data"
+//const path_stim = "/users/fabianschneider/desktop/programming/go/PNE/data/letters"
+const path_stim = "/users/fabianschneider/desktop/programming/go/PNE/data/numbers"
 
 func main() {
     c := Circuit{}
-    c.Neurogenesis(256, 4)
+    //c.Neurogenesis(256, 6)
+    c.Neurogenesis(256, 10)
     size := len(c.Cluster)
     
-    constim := map[string]int{"A": 0, "B": 1, "C": 2, "D": 3}
-    stimcon := map[int]string{0: "A", 1: "B", 2: "C", 3: "D"}
+    //constim := map[string]int{"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5}
+    //stimcon := map[int]string{0: "A", 1: "B", 2: "C", 3: "D", 4: "E", 5: "F"}
+    constim := map[string]int{"ZERO": 0, "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5, "SIX": 6, "SEVEN": 7, "EIGHT": 8, "NINE": 9}
+    stimcon := map[int]string{0: "ZERO", 1: "ONE", 2: "TWO", 3: "THREE", 4: "FOUR", 5: "FIVE", 6: "SIX", 7: "SEVEN", 8: "EIGHT", 9: "NINE"}
     stimuli := LoadStimuli()
     
     count := 0
     right := 0
     error := 0
     
-    for i := 0; i < 50; i++ {
+    for i := 0; i < 10; i++ {
         for _, stimulus := range stimuli {
             res := c.ExposeTo(stimulus.GreyScale)
             if len(res) > 0 {
@@ -35,25 +40,54 @@ func main() {
                 } else {
                     error += 1
                 }
-                //fmt.Printf("NN thinks %s%s is %s with confidence=%f.\n", stimulus.Type, stimulus.Variant, stimcon[res[0].outcome], res[0].confidence)
-                //fmt.Println(res)
                 c.CorrectFor(res, constim[stimulus.Type], stimulus.GreyScale)
-            } else {
-                fmt.Printf("NN has no answer for %s%s.\n", stimulus.Type, stimulus.Variant)
             }
         }
-        fmt.Printf("Success rate=%f over %d trials.\n", (float64(right) / float64(count)), count)
+        fmt.Printf("Success rate=%f after trials=%d.\n", (float64(right) / float64(count)), count)
     }
     
-    /*for _, neuron := range c.Cluster {
-        for _, at := range neuron.Axon.Terminals {
-            fmt.Println(at)
+    fmt.Printf("Size %d -> %d.\n", size, len(c.Cluster))
+    obs := float64(right)
+    exp := float64(1) / float64(len(constim)) * float64(count)
+    x2 := ((obs - exp) * (obs - exp)) / exp
+    p := chi2p(2, x2)
+    fmt.Printf("Stats: X^2=%f, p=%f\n", x2, p)
+}
+
+func chi2p(dof int, distance float64) float64 {
+    return gammaIncQ(.5*float64(dof), .5*distance)
+}
+
+type ifctn func(float64) float64
+
+func gammaIncQ(a, x float64) float64 {
+    aa1 := a - 1
+    var f ifctn = func(t float64) float64 {
+        return math.Pow(t, aa1) * math.Exp(-t)
+    }
+    y := aa1
+    h := 1.5e-2
+    for f(y)*(x-y) > 2e-8 && y < x {
+        y += .4
+    }
+    if y > x {
+        y = x
+    }
+    return 1 - simpson38(f, 0, y, int(y/h/math.Gamma(a)))
+}
+
+func simpson38(f ifctn, a, b float64, n int) float64 {
+    h := (b - a) / float64(n)
+    h1 := h / 3
+    sum := f(a) + f(b)
+    for j := 3*n - 1; j > 0; j-- {
+        if j%3 == 0 {
+            sum += 2 * f(a+h1*float64(j))
+        } else {
+            sum += 3 * f(a+h1*float64(j))
         }
-    }*/
-    
-    fmt.Printf("Size %d -> %d.", size, len(c.Cluster))
-    
-    //c.ExposeTo(stimuli[0].GreyScale)
+    }
+    return h * sum / 8
 }
 
 type LoadStimulus struct {
