@@ -12,6 +12,7 @@ type Circuit struct {
     Cluster []*Neuron
     Results []Percept
     MaxConn int
+    Inhibitors int
 }
 
 type Percept struct {
@@ -33,6 +34,7 @@ func (circuit *Circuit) Neurogenesis(in int, out int) {
         n = circuit.In
     }
     n = n + circuit.In + circuit.Out
+    circuit.Inhibitors = 0
     circuit.MaxConn = 15
     
     for i := 0; i < n; i++ {
@@ -132,9 +134,15 @@ func (c *Circuit) CorrectFor(r []RankedResult, v int, stimulus []float64) {
                 if (*at).SynapseIsExcitatory {
                     (*c).GrowNeuron(neurontype.Deep)
                     (*c).Cluster[len((*c).Cluster)-1].Axon.GrowSingleTerminal(realOut, true)
+                    if (*c).Inhibitors < deep * ((*c).Out-1) {
+                        (*c).Cluster[index].Axon.GrowSingleTerminal(designatedOut, false)
+                        (*c).Inhibitors += 1
+                    }
                     (*c).Cluster[index].Axon.GrowSingleTerminal(len((*c).Cluster)-1, true)
                 }
             }
         }
+        
+        
     }
 }
