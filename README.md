@@ -69,7 +69,7 @@ func main() {
 }
 ```
 
-### Method 2: PNE.LSBN
+### Method 2: PNE.LargeScaleBrainNetwork
 In order to use the LSBN method, first initialise your large scale brain network as follows:
 ```go
 lsbn := LargeScaleBrainNetwork{}
