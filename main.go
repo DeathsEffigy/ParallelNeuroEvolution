@@ -15,8 +15,9 @@ import (
 const path_stim = "/users/fabianschneider/desktop/programming/go/PNE/data/numbers"
 
 func main() {
+    
+    // circuit method
     c := Circuit{}
-    //c.Neurogenesis(256, 6)
     c.Neurogenesis(256, 10)
     size := len(c.Cluster)
     
@@ -31,19 +32,25 @@ func main() {
     error := 0
     
     for i := 0; i < 100; i++ {
+        countThis := 0
+        countRight := 0
+        countError := 0
         for _, stimulus := range stimuli {
             res := c.ExposeTo(stimulus.GreyScale)
             if len(res) > 0 {
                 count += 1
+                countThis += 1
                 if stimulus.Type == stimcon[res[0].outcome] {
                     right += 1
+                    countRight += 1
                 } else {
                     error += 1
+                    countError += 1
                 }
                 c.CorrectFor(res, constim[stimulus.Type], stimulus.GreyScale)
             }
         }
-        fmt.Printf("Success rate=%f after trials=%d.\n", (float64(right) / float64(count)), count)
+        fmt.Printf("success_rate_overall=%f after trials=%d. success_rate this trial=%f.\n", (float64(right) / float64(count)), count, (float64(countRight) / float64(countThis)))
     }
     
     fmt.Printf("Size %d -> %d.\n", size, len(c.Cluster))
@@ -52,6 +59,51 @@ func main() {
     x2 := ((obs - exp) * (obs - exp)) / exp
     p := chi2p(2, x2)
     fmt.Printf("Stats: X^2=%f, p=%f\n", x2, p)
+    
+    
+    /*
+    // LSBN method
+    stimuli := LoadStimuli()
+    constim := map[string]int{"ZERO": 0, "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5, "SIX": 6, "SEVEN": 7, "EIGHT": 8, "NINE": 9}
+    var sensations []float64
+    for _, stimulus := range stimuli {
+        for _, sensation := range stimulus.GreyScale {
+            sensations = append(sensations, sensation)
+        }
+    }
+    lsbn := LargeScaleBrainNetwork{}
+    types, _, _ := lsbn.GrowCircuit("shapes", 64, 0.6, 256, sensations, true, 0.5)
+    fmt.Printf("ShapesCircuit grown with types=%d.\n", types)
+    lsbn.Grow("numbers", "shapes", 10)
+    fmt.Printf("NumbersCircuit grown.\n")
+    
+    count := 0
+    succs := 0
+    for i := 0; i < 100; i++ {
+        total := 0
+        success := 0
+        
+        for _, stimulus := range stimuli {
+            total += 1
+            count += 1
+            stim, res := lsbn.Expose("numbers", stimulus.GreyScale)
+            if len(res) > 0 {
+                if res[0].outcome == constim[stimulus.Type] {
+                    success += 1
+                    succs += 1
+                }
+                lsbn.Correct("numbers", res, constim[stimulus.Type], stim)
+            }
+        }
+        
+        fmt.Printf("Trials no.%d done with overall_success_rate=%.4f success_rate=%.4f.\n", i, float64(succs) / float64(count), float64(success) / float64(total))
+    }
+    
+    obs := float64(succs)
+    exp := float64(1) / float64(len(constim)) * float64(count)
+    x2 := ((obs - exp) * (obs - exp)) / exp
+    p := chi2p(2, x2)
+    fmt.Printf("Stats: X^2=%f, p=%f\n", x2, p)*/
 }
 
 func chi2p(dof int, distance float64) float64 {
@@ -107,7 +159,7 @@ type Pixel struct {
     R, G, B, A int
 }
 
-func LoadStimuli () []ImgStimulus {
+func LoadStimuli() []ImgStimulus {
     files := []LoadStimulus{}
     
     filepath.Walk(path_stim, func(path string, info os.FileInfo, err error) error {
@@ -170,5 +222,8 @@ func PixelToGS(pixel Pixel) int {
 }
 
 func GSToGR(gs int) float64 {
-    return float64(gs) / float64(255) * 0.2
+    // this makes white the priority. we want black to be the priority.
+    //return (float64(gs) / float64(255)) * 0.2
+    bs := 255 - gs
+    return (float64(bs) / float64(255)) * 0.2
 }
