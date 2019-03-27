@@ -3,8 +3,8 @@
 2. [What's next for PNE?](#whats-next-for-pne)
 3. [Should I use PNE?](#should-i-use-pne)
 4. [How do I use PNE?](#how-do-i-use-pne)
-  1. [Method 1: PNE.Circuit](#method-1-pnecircuit)
-  2. [Method 2: PNE.LargeScaleBrainNetwork](#method-2-pnelargescalebrainnetwork)
+    1. [Method 1: PNE.Circuit](#method-1-pnecircuit)
+    2. [Method 2: PNE.LargeScaleBrainNetwork](#method-2-pnelargescalebrainnetwork)
 5. [What's wrong with my learning rate?](#whats-wrong-with-my-learning-rate)
 
 ## What is PNE?
