@@ -138,5 +138,7 @@ func main() {
 
 ## What's wrong with my learning rate?
 Frankly, nothing. Due to the nature of the neuro-evolution of this network, learning rate will fluctuate (and dip into the negative at predictable intervals). Generally speaking, you can expect to see a learning curve somewhat similar to the one depicted below:
+
 ![Learning Curve](https://i.imgur.com/NQlZLD7.png)
+
 The overall trend (depicted in red), however, should always be positive. Please note that the amplitude of this "wave function" (if you will) may change depending on the number of sensory and mechanical neurons in your circuits.
