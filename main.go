@@ -15,7 +15,7 @@ import (
 const path_stim = "/users/fabianschneider/desktop/programming/go/PNE/data/numbers"
 
 func main() {
-    
+    /*
     // circuit method
     c := Circuit{}
     c.Neurogenesis(256, 10)
@@ -59,9 +59,9 @@ func main() {
     x2 := ((obs - exp) * (obs - exp)) / exp
     p := chi2p(2, x2)
     fmt.Printf("Stats: X^2=%f, p=%f\n", x2, p)
+    */
     
     
-    /*
     // LSBN method
     stimuli := LoadStimuli()
     constim := map[string]int{"ZERO": 0, "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5, "SIX": 6, "SEVEN": 7, "EIGHT": 8, "NINE": 9}
@@ -72,7 +72,8 @@ func main() {
         }
     }
     lsbn := LargeScaleBrainNetwork{}
-    types, _, _ := lsbn.GrowCircuit("shapes", 64, 0.6, 256, sensations, true, 0.5)
+    fmt.Printf("Growing ShapesCircuit...\n")
+    types, _, _ := lsbn.GrowCircuit("shapes", 64, 0.6, 256, sensations, true, 0.9)
     fmt.Printf("ShapesCircuit grown with types=%d.\n", types)
     lsbn.Grow("numbers", "shapes", 10)
     fmt.Printf("NumbersCircuit grown.\n")
@@ -103,7 +104,7 @@ func main() {
     exp := float64(1) / float64(len(constim)) * float64(count)
     x2 := ((obs - exp) * (obs - exp)) / exp
     p := chi2p(2, x2)
-    fmt.Printf("Stats: X^2=%f, p=%f\n", x2, p)*/
+    fmt.Printf("Stats: X^2=%f, p=%f\n", x2, p)
 }
 
 func chi2p(dof int, distance float64) float64 {
