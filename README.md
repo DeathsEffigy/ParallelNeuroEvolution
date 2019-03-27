@@ -1,14 +1,27 @@
+## FAQ
+1. [What is PNE?](#what-is-pne)
+2. [What's next for PNE?](#whats-next-for-pne)
+3. [Should I use PNE?](#should-i-use-pne)
+4. [How do I use PNE?](#how-do-i-use-pne)
+  1. [Method 1: PNE.Circuit](#method-1-pnecircuit)
+  2. [Method 2: PNE.LargeScaleBrainNetwork](#method-2-pnelargescalebrainnetwork)
+5. [What's wrong with my learning rate?](#whats-wrong-with-my-learning-rate)
+
 ## What is PNE?
 Parallel Neuro-Evolution (PNE) is an experimental artificial intelligence that works very much unlike any other models currently out there. Basically, PNE does not use matrices at all. Instead, it emulates (with some degree of accuracy) a parallel activation paradigm where neurons either fire or don't fire, but they do not do so in sync. Consequently, the model will activate (and re-activate) a wide range of mechanical neurons (output neurons), that are ranked by frequency of activation and reactively inhibited. The neural model then evolves using forward propagation.
+
 
 ## What's next for PNE?
 Right now, PNE works quite well. There is, however, a caveat: Since the model uses Goroutines to emulate a parallel activation paradigm, the `pne_circuit.go`-model can get quite intense (and slow). Learning rate is perfectly fine and rather fast, but processing takes a while. This could be combatted by using large scale brain containers that allow construction of several `pne_circuit.go` structs that perform quicker, much more focused tasks. As the PNE model should best be used in situations similar to contextual learning, this also takes the project one step further towards biological accuracy. For example, it seems ridiculous to assume that the brain dedicates a single circuit to the recognition of letters. Rather, the process likely involves multiple domain-general circuits (e.g., shape detection and recursion). An approximation of this has now been implemented as `pne_lsbn.go`. However, this is very rudimentary and its usage is currently not advised. A better solution to this issue would be an implementation of circuits whose mechanical neurons can fire at sensory neurons of adjacent circuits. This will be implemented some time in the future, as it should allow for much more flexible models and *significantly* faster convergence.
 
+
 ## Should I use PNE?
 If you're asking this, the answer is probably no. This isn't for software development (let alone production releases). This is mostly for people interested in computational neurosciences.
 
+
 ## How do I use PNE?
 There are currently two ways to model a neural network in PNE. One utilises `pne_circuit.go` only to form a single circuit struct, while the other uses `pne_lsbn.go` to create multiple circuit structs within a large scale brain network. Currently, it is advisable to make use of the circuit model, as it is faster and far more accurate.
+
 
 ### Method 1: PNE.Circuit
 First off, initialise a circuit, like so:
@@ -68,6 +81,7 @@ func main() {
   }
 }
 ```
+
 
 ### Method 2: PNE.LargeScaleBrainNetwork
 In order to use the LSBN method, first initialise your large scale brain network as follows:
@@ -135,6 +149,7 @@ func main() {
   }
 }
 ```
+
 
 ## What's wrong with my learning rate?
 Frankly, nothing. Due to the nature of the neuro-evolution of this network, learning rate will fluctuate (and dip into the negative at predictable intervals). Generally speaking, you can expect to see a learning curve somewhat similar to the one depicted below:
